@@ -1,0 +1,1 @@
+{"name":"sap-invoice-ml-demo","version":"1.0.0","private":true,"description":"Training demo: supervised invoice classification","scripts":{"start":"node server.js"},"engines":{"node":">=18"}}
