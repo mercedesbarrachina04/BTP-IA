@@ -1,1 +1,55 @@
 
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+
+metadata:
+  name: invoice-naive-bayes-training
+
+  annotations:
+    scenarios.ai.sap.com/name: "Invoice Classification"
+    scenarios.ai.sap.com/description: "Invoice classification using Naive Bayes"
+    executables.ai.sap.com/name: "Train Invoice Classifier"
+    executables.ai.sap.com/description: "Train a Node.js Naive Bayes model"
+    artifacts.ai.sap.com/invoice-data.kind: "dataset"
+    artifacts.ai.sap.com/invoice-model.kind: "model"
+
+  labels:
+    scenarios.ai.sap.com/id: "invoice-classification"
+    executables.ai.sap.com/id: "invoice-naive-bayes-training"
+    ai.sap.com/version: "1.0.0"
+
+spec:
+  entrypoint: train-model
+
+  templates:
+    - name: train-model
+      metadata:
+        labels:
+          ai.sap.com/resourcePlan: "train.l"
+
+      inputs:
+        artifacts:
+          - name: invoice-data
+            path: /app/data
+
+      outputs:
+        artifacts:
+          - name: invoice-model
+            path: /app/output
+            globalName: invoice-model
+            archive:
+              none: {}
+
+      container:
+        image: ghcr.io/mercedesbarrachina04/invoice-ml:latest
+        imagePullPolicy: Always
+
+        command: ["node", "/app/train.js"]
+
+        env:
+          - name: TRAINING_DATA_PATH
+            value: /app/data/training_invoices.csv
+
+          - name: MODEL_OUTPUT_DIR
+            value: /app/output
+
